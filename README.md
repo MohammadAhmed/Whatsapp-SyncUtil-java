@@ -40,3 +40,19 @@ Options
 mode: sync mode (full or delta)
         context: sync context (registration, background or interactive)
         debug: enables debug output (you shouldn't check this until you know it very well !!)
+
+===================================================================
+
+Tested on :
+
+Linux (yes and no problem)
+
+windows (no)
+
+Mac(no)
+
+===================================================================
+
+feel free to contact me if you have any questions
+
+Skype (what's i prefer) : abu_a7md44
