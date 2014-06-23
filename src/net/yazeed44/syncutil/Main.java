@@ -436,6 +436,11 @@ public class Main extends javax.swing.JFrame {
            return;
        }
        
+       else if (result.contains("failed")){
+           JOptionPane.showMessageDialog(this,"" + result,"",JOptionPane.ERROR_MESSAGE);
+           return;
+       }
+       
        else if (result.length() > 1){
           
            int copy = JOptionPane.showOptionDialog(this, "the phone numbers who does have a whatsapp :  " + "\n" + result
@@ -449,10 +454,10 @@ public class Main extends javax.swing.JFrame {
            return;
        }
        
-       else if (result.length() == 0){
+     /*  else if (result.length() == 0){
            JOptionPane.showMessageDialog(this, "Nobody got whatsapp!!"+ "\n"+ "Ohhhh!! I know that feeling bro !!", "", JOptionPane.INFORMATION_MESSAGE);
            return;
-       }
+       }*/
         
     }//GEN-LAST:event_syncBtnActionPerformed
 
