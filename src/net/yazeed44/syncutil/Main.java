@@ -20,8 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -361,7 +359,7 @@ public class Main extends javax.swing.JFrame {
         password = passwordTxt.getText();
         mode = (String)modeCombo.getSelectedItem();
         context = (String)contextCombo.getSelectedItem();
-        boolean isUserInputTxt = true;
+        
         
         if(!isVarsInitalized())
             return;
@@ -370,21 +368,24 @@ public class Main extends javax.swing.JFrame {
         //let's get numbers !!
        
         else if (numbers != null){
-            isUserInputTxt = false;
+            //don't do anything , we got the numbers already
             
         }
         else if (importFile != null){
-            isUserInputTxt = true;
+            
+            //send command to get the numbers
+            
             BufferedReader buffer = null;
             numbers = "";
             try {
+                //get the phone number from every line
                  buffer = new BufferedReader(new FileReader(importFile));
                  String line="";
             while((line = buffer.readLine()) != null){
-                numbers+=line +" ";
+                numbers+=line +" "; 
             }
             } catch (FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, ex, "Exception !!", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex, "Exception !!" , JOptionPane.ERROR_MESSAGE);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, ex, "Exception !!", JOptionPane.ERROR_MESSAGE);
             }
@@ -407,14 +408,14 @@ public class Main extends javax.swing.JFrame {
         command+=" "+numbers;
         
         System.out.println("command : " + "\n" + command);
-        String line="";
+        
         String result = "";
         Process proc;
           try {
-              proc = Runtime.getRuntime().exec(command);
+              proc = Runtime.getRuntime().exec(command); // send the command 
                BufferedReader reader = 
             new BufferedReader(new InputStreamReader(proc.getInputStream()));
-
+String line="";
         
         while((line = reader.readLine()) != null) {
             System.out.print(line + "\n");
@@ -423,10 +424,15 @@ public class Main extends javax.swing.JFrame {
 
         proc.waitFor();  
           } catch (IOException | InterruptedException ex) {
-              Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+              JOptionPane.showMessageDialog(this, ex, "Exception !!", JOptionPane.ERROR_MESSAGE);
           }
 
           System.out.println("result : " + "\n" + result);
+          
+          boolean isStartWithNumber = result.startsWith("0")||result.startsWith("1")||result.startsWith("2")||result.startsWith("3")||result.startsWith("4")
+               ||result.startsWith("5")||result.startsWith("6")||result.startsWith("7")||result.startsWith("8")||result.startsWith("9");
+          
+          
        if(result.contains("Exception")){
            JOptionPane.showMessageDialog(this, "There's a exception : " +"\n"+result, "", JOptionPane.ERROR_MESSAGE);
            return;
@@ -441,7 +447,9 @@ public class Main extends javax.swing.JFrame {
            return;
        }
        
-       else if (result.length() > 1){
+       
+               
+       else if (result.length() > 1&& isStartWithNumber){
           
            int copy = JOptionPane.showOptionDialog(this, "the phone numbers who does have a whatsapp :  " + "\n" + result
                    , "",JOptionPane.YES_OPTION, JOptionPane.INFORMATION_MESSAGE
@@ -454,29 +462,34 @@ public class Main extends javax.swing.JFrame {
            return;
        }
        
-     /*  else if (result.length() == 0){
+       else if (result.length() == 0){
            JOptionPane.showMessageDialog(this, "Nobody got whatsapp!!"+ "\n"+ "Ohhhh!! I know that feeling bro !!", "", JOptionPane.INFORMATION_MESSAGE);
            return;
-       }*/
+       }
         
     }//GEN-LAST:event_syncBtnActionPerformed
 
     private boolean isVarsInitalized(){
         
         if (username == null||username.length() == 0){
-            JOptionPane.showMessageDialog(this, "you didn't type a username", "ERROR !!", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "you didn't type a username !!", "ERROR !!", JOptionPane.ERROR_MESSAGE);
             return false;
             
         }
         
         if (password == null ||password.length() == 0){
-            JOptionPane.showMessageDialog(this, "you didn't type a password", "ERROR !!", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "you didn't type a password !!", "ERROR !!", JOptionPane.ERROR_MESSAGE);
             return false;
         }
          if(numbers == null&&importFile ==null){
-            JOptionPane.showMessageDialog(this, "You didn't put numbers !!", "", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "You didn't put numbers !!", "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+         
+         if (numbers == null ||numbers.length() == 0){
+              JOptionPane.showMessageDialog(this, "You didn't put numbers !!", "ERROR", JOptionPane.ERROR_MESSAGE);
+            return false;
+         }
         return true;
         
     }
