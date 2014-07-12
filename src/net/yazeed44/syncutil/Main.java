@@ -6,21 +6,16 @@
 
 package net.yazeed44.syncutil;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -33,39 +28,52 @@ public class Main extends javax.swing.JFrame {
     /**
      * Creates new form Main
      */
+    
+    private String result = "";
       private boolean isWindows = true;
     File importFile;
     private boolean chooseFile = false;
-    String numbers;
-    
+  private  String numbers;
+    private boolean export = true;
     private boolean debug = false;
     
     private String username,password;
-    
+    String command ="";
     private String mode,context;
+    
+    private Double time;
     public Main() {
         initComponents();
         initVars();
-        initIsWindows();
+       
+       isWindows = SyncUtil.initIsWindows(this);
         this.setTitle("WhatsApi Sync util (Java)");
     }
+    
+    
+final ItemListener listener = new ItemListener(){
 
-    private void initIsWindows(){
-        int result =JOptionPane.showOptionDialog(this, "What is your operating System ?","" , JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE
-                , null, new String[]{"GNU/Linux or mac","Windows"}, null);
-        
-        if(result == 0){
-            JOptionPane.showMessageDialog(this, "you must install mono to use this program "+"\n" + "in Gnu/linux : open terminal and type " +"\n"
-                    +"sudo apt-get install mono" +"\n" +"in mac : i don't know :D just search and you will find a way"
-                    , "", JOptionPane.WARNING_MESSAGE);
-            isWindows = false;
-        }
-        
-        else {
-            JOptionPane.showMessageDialog(this, "You are good to go !!", "", JOptionPane.INFORMATION_MESSAGE);
-            isWindows = true;
-        }
-    }
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+               
+                if(((JCheckBox)e.getItem()).getText().equals(exportCheck.getText())){
+                    if(!export){
+                        export = true;
+                        return;
+                    }
+                    export = false;
+                }
+                else {
+                    if (debug){
+                    debug = false;
+                    return;
+                }
+                     debug = true;
+                }
+            }
+            
+        };
+    
   
     private void initVars(){
         this.txtRadioBtn.addActionListener(new Listener());
@@ -78,23 +86,11 @@ public class Main extends javax.swing.JFrame {
         group.add(txtRadioBtn);
         group.add(numberRadioBtn);
         
-        
+        exportCheck.setActionCommand(exportCheck.getText());
+        exportCheck.addItemListener(listener);
         debugCheck.setActionCommand(debugCheck.getText());
-        debugCheck.addItemListener(new ItemListener(){
-          
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (debug){
-                    debug = false;
-                    return;
-                }
-                     debug = true;
-            }
-            
-        });
-        
-        
-        
+        debugCheck.addItemListener(listener);
+    
     }
     
     class Listener implements ActionListener{
@@ -115,11 +111,22 @@ public class Main extends javax.swing.JFrame {
                        chooseFile = true;
                        System.out.println("We got file " + importFile.getPath());
                        numbers = null;
+                       result = "";
                    }
                }
                
-               else  {
+               else if (chooseFile) {
+                   numbers = null;
+                   importFile = null;
+                   result = "";
+                   int returnVal = fc.showOpenDialog(Main.this);
                    
+                   if (returnVal == JFileChooser.APPROVE_OPTION){
+                       importFile = fc.getSelectedFile();
+                       chooseFile = true;
+                       System.out.println("We got file " + importFile.getPath());
+                       
+                   }
                }
            }
            
@@ -147,6 +154,8 @@ public class Main extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         txtRadioBtn = new javax.swing.JRadioButton();
         numberRadioBtn = new javax.swing.JRadioButton();
+        timeTxt = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         usernameTxt = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
@@ -159,6 +168,7 @@ public class Main extends javax.swing.JFrame {
         contextCombo = new javax.swing.JComboBox();
         modeCombo = new javax.swing.JComboBox();
         debugCheck = new javax.swing.JCheckBox();
+        exportCheck = new javax.swing.JCheckBox();
         syncBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -175,18 +185,29 @@ public class Main extends javax.swing.JFrame {
         numberRadioBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         numberRadioBtn.setText("type the numbers");
 
+        timeTxt.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        timeTxt.setText("0.5");
+
+        jLabel3.setText("Time between checks (seconds)");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel2)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(txtRadioBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(numberRadioBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(jLabel2)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtRadioBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(numberRadioBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addGap(23, 23, 23))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(58, 58, 58)
+                .addComponent(timeTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -197,7 +218,11 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(txtRadioBtn)
                 .addGap(18, 18, 18)
                 .addComponent(numberRadioBtn)
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(timeTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25))
         );
 
         jLabel4.setText("User name (your phone number)");
@@ -211,13 +236,14 @@ public class Main extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(usernameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
-                    .addComponent(jLabel5))
+                    .addComponent(jLabel5)
+                    .addComponent(usernameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(passwordTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(passwordTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -226,11 +252,11 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
                 .addComponent(usernameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel5)
                 .addGap(18, 18, 18)
                 .addComponent(passwordTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(57, 57, 57))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jLabel6.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
@@ -251,47 +277,57 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        exportCheck.setSelected(true);
+        exportCheck.setText("export checked numbers");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(68, 68, 68)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addComponent(debugCheck))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(contextCombo, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                                .addGap(56, 56, 56)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(debugCheck))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel7))
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(contextCombo, 0, 118, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel7)))
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(exportCheck)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(modeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel8)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(modeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel8)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel6)
-                .addGap(32, 32, 32)
-                .addComponent(debugCheck)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(contextCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7))
-                .addGap(46, 46, 46)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(modeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel8))
-                .addGap(34, 34, 34))
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel8))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addGap(18, 18, 18)
+                        .addComponent(debugCheck)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(contextCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel7))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(modeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(39, 39, 39)
+                .addComponent(exportCheck)
+                .addGap(24, 24, 24))
         );
 
         syncBtn.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
@@ -330,19 +366,15 @@ public class Main extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(42, 42, 42)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(56, 56, 56))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(39, 39, 39)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(49, 49, 49)
                 .addComponent(syncBtn)
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         pack();
@@ -354,119 +386,110 @@ public class Main extends javax.swing.JFrame {
 
     private void syncBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_syncBtnActionPerformed
         // TODO add your handling code here:
-        
+        long start = System.currentTimeMillis();
         username = usernameTxt.getText();
         password = passwordTxt.getText();
         mode = (String)modeCombo.getSelectedItem();
         context = (String)contextCombo.getSelectedItem();
-        
+        result = "";//reset
+        time = Double.parseDouble(timeTxt.getText());
         
         if(!isVarsInitalized())
             return;
         
+        numbers = SyncUtil.readFile(importFile, this);
+      
+         
+        int numbersCount = SyncUtil.getNumberCount(numbers);
+         
+        command = SyncUtil.createCommand(username, password, mode, debug+"", context, isWindows);
         
-        //let's get numbers !!
-       
-        else if (numbers != null){
-            //don't do anything , we got the numbers already
+        int threadsNumber = 0;
+         
+        
+        if (numbersCount > 0){
+            threadsNumber = (int) (numbersCount * 0.01);
             
         }
-        else if (importFile != null){
+        
+      final String commands[] = SyncUtil.getCommandWithNumbersSeperated(command, threadsNumber, numbers);
+       
+        for(int i = 0; i <= threadsNumber;i++){
+            final int iClone = i;
             
-            //send command to get the numbers
-            
-            BufferedReader buffer = null;
-            numbers = "";
+            Thread thread = new Thread(new Runnable(){
+
+                @Override
+                public void run() {
+                    result += SyncUtil.getResult(commands[iClone]);
+                    
+                }
+                
+            });
+            thread.setName("Thread " + iClone);
+            thread.start();
             try {
-                //get the phone number from every line
-                 buffer = new BufferedReader(new FileReader(importFile));
-                 String line="";
-            while((line = buffer.readLine()) != null){
-                numbers+=line +" "; 
-            }
-            } catch (FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, ex, "Exception !!" , JOptionPane.ERROR_MESSAGE);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, ex, "Exception !!", JOptionPane.ERROR_MESSAGE);
+                thread.join();
+                Thread.sleep((long)(time * 1000));
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-        }
-                        System.out.println("numbers = " + numbers);
+            
+            
+        }     
         
-        String command ="";
-        
-        if (!isWindows){
-            command += "mono ";
-        }
-        
-        command += "wasyncutil.exe" +" username=";
-        command+= username +" ";
-        command+="password="+password;
-        command+=" mode="+mode;
-        command+=" debug="+debug;
-        command+=" context="+context;
-        command+=" "+numbers;
-        
-        System.out.println("command : " + "\n" + command);
-        
-        String result = "";
-        Process proc;
-          try {
-              proc = Runtime.getRuntime().exec(command); // send the command 
-               BufferedReader reader = 
-            new BufferedReader(new InputStreamReader(proc.getInputStream()));
-String line="";
-        
-        while((line = reader.readLine()) != null) {
-            System.out.print(line + "\n");
-            result += line +"\n";
-        }
-
-        proc.waitFor();  
-          } catch (IOException | InterruptedException ex) {
-              JOptionPane.showMessageDialog(this, ex, "Exception !!", JOptionPane.ERROR_MESSAGE);
-          }
-
-          System.out.println("result : " + "\n" + result);
-          
-          boolean isStartWithNumber = result.startsWith("0")||result.startsWith("1")||result.startsWith("2")||result.startsWith("3")||result.startsWith("4")
-               ||result.startsWith("5")||result.startsWith("6")||result.startsWith("7")||result.startsWith("8")||result.startsWith("9");
-          
-          
-       if(result.contains("Exception")){
-           JOptionPane.showMessageDialog(this, "There's a exception : " +"\n"+result, "", JOptionPane.ERROR_MESSAGE);
-           return;
-       }
-       else if(result.contains("ERROR")){
-           JOptionPane.showMessageDialog(this, "There's an error !! " + "\n" + result, "", JOptionPane.ERROR_MESSAGE);
-           return;
-       }
-       
-       else if (result.contains("failed")){
-           JOptionPane.showMessageDialog(this,"" + result,"",JOptionPane.ERROR_MESSAGE);
-           return;
-       }
-       
+       SyncUtil.isResultTrue(this, result);
+           System.out.println("Final result : " + result);
        
                
-       else if (result.length() > 1&& isStartWithNumber){
-          
-           int copy = JOptionPane.showOptionDialog(this, "the phone numbers who does have a whatsapp :  " + "\n" + result
-                   , "",JOptionPane.YES_OPTION, JOptionPane.INFORMATION_MESSAGE
+        if (result.length() > 1&& SyncUtil.isStartWithNumber(result)){
+           
+            
+        // Get elapsed time in milliseconds
+long elapsedTimeMillis = System.currentTimeMillis()-start;
+        
+
+// Get elapsed time in seconds
+         float elapsedTimeSec = elapsedTimeMillis/1000F;
+         
+         String message;
+         
+         if(result.length() > 100){
+             message = "there's alot of numbers , can't display them" + "\n" + "done in : " + elapsedTimeSec +" seconds";
+         }
+         else {
+             message = "numbers who got whatsapp : " + "\n" + result + "\n" + "done in : " + elapsedTimeSec +" seconds";
+         }
+         
+         
+           int copy = JOptionPane.showOptionDialog(this, message , "",JOptionPane.YES_OPTION, JOptionPane.INFORMATION_MESSAGE
                    , null, new String[]{"Copy the numbers"}, null);
            
            if (copy == 0){
-               setSysClipboardText(result);
+               SyncUtil.setSysClipboardText(result);
                
            }
-           return;
+           
+           
        }
        
        else if (result.length() == 0){
-           JOptionPane.showMessageDialog(this, "Nobody got whatsapp!!"+ "\n"+ "Ohhhh!! I know that feeling bro !!", "", JOptionPane.INFORMATION_MESSAGE);
-           return;
-       }
+             // Get elapsed time in milliseconds
+long elapsedTimeMillis = System.currentTimeMillis()-start;
         
+
+// Get elapsed time in seconds
+         float elapsedTimeSec = elapsedTimeMillis/1000F;
+         
+         
+           JOptionPane.showMessageDialog(this, "Nobody got whatsapp!!"+ "\n"+ "Ohhhh!! I know that feeling bro !!"
+                   + "\n" + "done in : " + elapsedTimeSec +" seconds", "", JOptionPane.INFORMATION_MESSAGE);
+         
+       }
+       
+       
+      
     }//GEN-LAST:event_syncBtnActionPerformed
 
     private boolean isVarsInitalized(){
@@ -486,22 +509,11 @@ String line="";
             return false;
         }
          
-         if (numbers == null ||numbers.length() == 0){
-              JOptionPane.showMessageDialog(this, "You didn't put numbers !!", "ERROR", JOptionPane.ERROR_MESSAGE);
-            return false;
-         }
+        
         return true;
         
     }
     
-   /**
-     * put string into Clipboard
-     */
-    public static void setSysClipboardText(String writeMe) {
-        Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
-        Transferable tText = new StringSelection(writeMe);
-        clip.setContents(tText, null);
-    }
     
     /**
      * @param args the command line arguments
@@ -532,6 +544,7 @@ String line="";
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new Main().setVisible(true);
             }
@@ -541,8 +554,10 @@ String line="";
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox contextCombo;
     private javax.swing.JCheckBox debugCheck;
+    private javax.swing.JCheckBox exportCheck;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -555,6 +570,7 @@ String line="";
     private javax.swing.JRadioButton numberRadioBtn;
     private javax.swing.JTextField passwordTxt;
     private javax.swing.JButton syncBtn;
+    private javax.swing.JTextField timeTxt;
     private javax.swing.JRadioButton txtRadioBtn;
     private javax.swing.JTextField usernameTxt;
     // End of variables declaration//GEN-END:variables
