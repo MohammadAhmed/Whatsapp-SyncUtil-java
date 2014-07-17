@@ -62,3 +62,7 @@ to launch the app you must have WhatsapiNet-SyncUtil files
 feel free to contact me if you have any questions
 
 Skype (what's i prefer) : abu_a7md44
+
+==================================================================
+
+Use it at your own risk !!
