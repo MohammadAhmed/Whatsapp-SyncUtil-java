@@ -47,15 +47,13 @@ String line;
 
         proc.waitFor();  
           } catch (IOException | InterruptedException ex) {
-              ex.printStackTrace();
+           
           }
 
           System.out.println(Thread.currentThread().getName() +" got " + "result : " + "\n" + result );
-        try {
+       
             writeFile(exportFile,result);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        
         return result;
     }
     
@@ -73,6 +71,15 @@ String line;
         
     }
     
+    
+    public static int getNumberCount(File importFile){
+        
+        String numbers = SyncUtil.readFile(importFile);
+        
+        return getNumberCount(numbers);
+        
+    }
+    
     /**
         
      * put string into Clipboard
@@ -85,7 +92,7 @@ String line;
     }
     
     /**
-    * check if user use windows or linux
+    * check if user use windows or gnu/Linux
     * @param compount to show the dialog
      * @return returns true if user clicked windows , false if clicked mac or gnu/linux
     */
@@ -132,10 +139,8 @@ String line;
                   end++;
                
              }
-            
-            
            
-            
+             
             assert(end < allNumbers.length());
            
             System.out.println("Start = " + start + ", end  = " + end);
@@ -177,22 +182,22 @@ String line;
          return true;
     }
     
-    public static String readFile(File importFile,Component componet){
+    public static String readFile(File importFile){
         
         String text = "";
         if (importFile != null){     
             try(BufferedReader buffer = new BufferedReader(new FileReader(importFile))) {
                 //get the phone number from every line
                  
-                 String line="";
+                 String line;
             while((line = buffer.readLine()) != null){
                 text+=line +" ";
                 
             }
             } catch (FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(componet, ex, "Exception !!" , JOptionPane.ERROR_MESSAGE);
+               
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(componet, ex, "Exception !!", JOptionPane.ERROR_MESSAGE);
+               
             }
             
         }
@@ -200,12 +205,16 @@ String line;
         return text;
     }
     
-    public static void writeFile(String fileName,String text) throws IOException{
+    public static void writeFile(String fileName,String text) {
         
         File file = new File(fileName);
         
         if(!file.exists()){
-            file.createNewFile();
+            try {
+                file.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(SyncUtil.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         
@@ -214,6 +223,8 @@ String line;
             
             
             writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(SyncUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -230,5 +241,58 @@ String line;
         command+=" debug="+debug;
         command+=" context="+context;
         return command;
+    }
+    
+    
+    public static void showResult(String result,long start,Component component){
+        
+       SyncUtil.isResultTrue(component, result);
+           System.out.println("Final result : " + result);       
+        
+        
+        if (result.length() > 1&& SyncUtil.isStartWithNumber(result)){
+           
+            
+        // Get elapsed time in milliseconds
+long elapsedTimeMillis = System.currentTimeMillis()-start;
+        
+
+// Get elapsed time in seconds
+         float elapsedTimeSec = elapsedTimeMillis/1000F;
+         
+         String message;
+         
+         if(result.length() > 100){
+             message = "there's alot of numbers , can't display them" + "\n" + "done in : " + elapsedTimeSec +" seconds";
+         }
+         else {
+             message = "numbers who got whatsapp : " + "\n" + result + "\n" + "done in : " + elapsedTimeSec +" seconds";
+         }
+         
+         
+           int copy = JOptionPane.showOptionDialog(component, message , "",JOptionPane.YES_OPTION, JOptionPane.INFORMATION_MESSAGE
+                   , null, new String[]{"Copy the numbers"}, null);
+           
+           if (copy == 0){
+               SyncUtil.setSysClipboardText(result);
+               
+           }
+           
+           
+       }
+       
+       else if (result.length() == 0){
+             // Get elapsed time in milliseconds
+long elapsedTimeMillis = System.currentTimeMillis()-start;
+        
+
+// Get elapsed time in seconds
+         float elapsedTimeSec = elapsedTimeMillis/1000F;
+         
+         
+           JOptionPane.showMessageDialog(component, "Nobody got whatsapp!!"+ "\n"+ "Ohhhh!! I know that feeling bro !!"
+                   + "\n" + "done in : " + elapsedTimeSec +" seconds", "", JOptionPane.INFORMATION_MESSAGE);
+         
+       }
     }
 }

@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
@@ -31,14 +30,14 @@ public class Main extends javax.swing.JFrame {
     
     private String result = "";
       private boolean isWindows = true;
-    File importFile;
+  private  File importFile;
     private boolean chooseFile = false;
   private  String numbers;
     private boolean export = true;
     private boolean debug = false;
     
     private String username,password;
-    String command ="";
+    private String command ="";
     private String mode,context;
     
     private Double time;
@@ -46,7 +45,7 @@ public class Main extends javax.swing.JFrame {
         initComponents();
         initVars();
        
-       isWindows = SyncUtil.initIsWindows(this);
+       isWindows = SyncUtil.initIsWindows(Main.this);
         this.setTitle("WhatsApi Sync util (Java)");
     }
     
@@ -109,9 +108,14 @@ final ItemListener listener = new ItemListener(){
                    if (returnVal == JFileChooser.APPROVE_OPTION){
                        importFile = fc.getSelectedFile();
                        chooseFile = true;
-                       System.out.println("We got file " + importFile.getPath());
+                       
                        numbers = null;
                        result = "";
+                       JOptionPane.showMessageDialog(Main.this, "you choosed  :  "+ "\n" + importFile.getPath()
+                               +"\n" + "numbers count = " + SyncUtil.getNumberCount(importFile) +"\n" +"it's preferable if the number count is high to choose"
+                               + " a high thread number" +"\n" +"Example : 1000 number 10 threads , so every thread sync 100 number" + "\n" +"this way reduce the ban "
+                               + "rate !!"
+                               , "info", JOptionPane.INFORMATION_MESSAGE);
                    }
                }
                
@@ -124,8 +128,12 @@ final ItemListener listener = new ItemListener(){
                    if (returnVal == JFileChooser.APPROVE_OPTION){
                        importFile = fc.getSelectedFile();
                        chooseFile = true;
-                       System.out.println("We got file " + importFile.getPath());
                        
+                       JOptionPane.showMessageDialog(Main.this, "you choosed  :  "+ "\n" + importFile.getPath()
+                               +"\n" + "numbers count = " + SyncUtil.getNumberCount(importFile) +"\n" +"it's preferable if the number count is high to choose"
+                               + " a high thread number" +"\n" +"Example : 1000 number 10 threads , so every thread sync 100 number" + "\n" +"this way reduce the ban "
+                               + "rate !!"
+                               , "info", JOptionPane.INFORMATION_MESSAGE);
                    }
                }
            }
@@ -156,6 +164,8 @@ final ItemListener listener = new ItemListener(){
         numberRadioBtn = new javax.swing.JRadioButton();
         timeTxt = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        threadsTxt = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         usernameTxt = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
@@ -188,7 +198,12 @@ final ItemListener listener = new ItemListener(){
         timeTxt.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         timeTxt.setText("0.5");
 
-        jLabel3.setText("Time between checks (seconds)");
+        jLabel3.setText("Time between Threads (seconds)");
+
+        jLabel9.setText("threads :");
+
+        threadsTxt.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        threadsTxt.setText("0");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -200,9 +215,14 @@ final ItemListener listener = new ItemListener(){
                     .addComponent(jLabel3)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(jLabel2)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtRadioBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(numberRadioBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel9)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(txtRadioBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(numberRadioBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(12, 12, 12)
+                                .addComponent(threadsTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(23, 23, 23))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(58, 58, 58)
@@ -218,7 +238,11 @@ final ItemListener listener = new ItemListener(){
                 .addComponent(txtRadioBtn)
                 .addGap(18, 18, 18)
                 .addComponent(numberRadioBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                .addComponent(threadsTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(timeTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -367,14 +391,14 @@ final ItemListener listener = new ItemListener(){
                 .addContainerGap()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(49, 49, 49)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addComponent(syncBtn)
-                .addContainerGap(49, Short.MAX_VALUE))
+                .addContainerGap(47, Short.MAX_VALUE))
         );
 
         pack();
@@ -393,12 +417,14 @@ final ItemListener listener = new ItemListener(){
         context = (String)contextCombo.getSelectedItem();
         result = "";//reset
         time = Double.parseDouble(timeTxt.getText());
+        int threads = Integer.parseInt(threadsTxt.getText());
         
         if(!isVarsInitalized())
             return;
         
-        numbers = SyncUtil.readFile(importFile, this);
-      
+        if(numbers == null && importFile != null){
+        numbers = SyncUtil.readFile(importFile);
+        }
          
         int numbersCount = SyncUtil.getNumberCount(numbers);
          
@@ -408,12 +434,13 @@ final ItemListener listener = new ItemListener(){
          
         
         if (numbersCount > 0){
-            threadsNumber = (int) (numbersCount * 0.01);
-            
+//            threadsNumber = (int) (numbersCount * 0.01);
+threadsNumber = threads;
         }
         
       final String commands[] = SyncUtil.getCommandWithNumbersSeperated(command, threadsNumber, numbers);
        
+      
         for(int i = 0; i <= threadsNumber;i++){
             final int iClone = i;
             
@@ -421,7 +448,9 @@ final ItemListener listener = new ItemListener(){
 
                 @Override
                 public void run() {
-                    result += SyncUtil.getResult(commands[iClone]);
+                    String subResult = SyncUtil.getResult(commands[iClone]);
+                    
+                    result += subResult;
                     
                 }
                 
@@ -434,61 +463,9 @@ final ItemListener listener = new ItemListener(){
             } catch (InterruptedException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
-            
         }     
-        
-       SyncUtil.isResultTrue(this, result);
-           System.out.println("Final result : " + result);
-       
-               
-        if (result.length() > 1&& SyncUtil.isStartWithNumber(result)){
-           
-            
-        // Get elapsed time in milliseconds
-long elapsedTimeMillis = System.currentTimeMillis()-start;
-        
-
-// Get elapsed time in seconds
-         float elapsedTimeSec = elapsedTimeMillis/1000F;
-         
-         String message;
-         
-         if(result.length() > 100){
-             message = "there's alot of numbers , can't display them" + "\n" + "done in : " + elapsedTimeSec +" seconds";
-         }
-         else {
-             message = "numbers who got whatsapp : " + "\n" + result + "\n" + "done in : " + elapsedTimeSec +" seconds";
-         }
-         
-         
-           int copy = JOptionPane.showOptionDialog(this, message , "",JOptionPane.YES_OPTION, JOptionPane.INFORMATION_MESSAGE
-                   , null, new String[]{"Copy the numbers"}, null);
-           
-           if (copy == 0){
-               SyncUtil.setSysClipboardText(result);
-               
-           }
-           
-           
-       }
-       
-       else if (result.length() == 0){
-             // Get elapsed time in milliseconds
-long elapsedTimeMillis = System.currentTimeMillis()-start;
-        
-
-// Get elapsed time in seconds
-         float elapsedTimeSec = elapsedTimeMillis/1000F;
-         
-         
-           JOptionPane.showMessageDialog(this, "Nobody got whatsapp!!"+ "\n"+ "Ohhhh!! I know that feeling bro !!"
-                   + "\n" + "done in : " + elapsedTimeSec +" seconds", "", JOptionPane.INFORMATION_MESSAGE);
-         
-       }
-       
-       
+      
+       SyncUtil.showResult(result, start, this);
       
     }//GEN-LAST:event_syncBtnActionPerformed
 
@@ -563,6 +540,7 @@ long elapsedTimeMillis = System.currentTimeMillis()-start;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -570,6 +548,7 @@ long elapsedTimeMillis = System.currentTimeMillis()-start;
     private javax.swing.JRadioButton numberRadioBtn;
     private javax.swing.JTextField passwordTxt;
     private javax.swing.JButton syncBtn;
+    private javax.swing.JTextField threadsTxt;
     private javax.swing.JTextField timeTxt;
     private javax.swing.JRadioButton txtRadioBtn;
     private javax.swing.JTextField usernameTxt;
